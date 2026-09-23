@@ -47,4 +47,10 @@ def update_device(name:str ,device:Device):
             return readings[index]
     raise HTTPException(status_code=404, detail = name + " does not exist")
 
-    
+@app.delete("/devices/{name}")
+def delete_device(name:str):
+    for device in readings:
+        if device["name"] == name:
+            readings.remove(device)
+            return{name + " was deleted successfully"}
+    raise HTTPException(status_code=404, detail= name + " was not located")
