@@ -36,8 +36,12 @@ def get_device(name: str):
 @app.post("/devices", status_code=201)
 def create_device(device: Device):
     new_device = device.model_dump()
+    for device in readings:
+        if device["name"] == new_device["name"]:
+            raise HTTPException(status_code = 409, detail="A device called " + new_device["name"] + " already exists")
     readings.append(new_device)
     return new_device
+
 
 @app.put("/devices/{name}")
 def update_device(name:str ,device:Device):
@@ -45,12 +49,13 @@ def update_device(name:str ,device:Device):
         if new_device["name"] == name:
             readings[index] = device.model_dump()
             return readings[index]
-    raise HTTPException(status_code=404, detail = name + " does not exist")
+    raise HTTPException(status_code=404, detail = "No device called " + name)
 
+ 
 @app.delete("/devices/{name}")
 def delete_device(name:str):
     for device in readings:
         if device["name"] == name:
             readings.remove(device)
-            return{name + " was deleted successfully"}
-    raise HTTPException(status_code=404, detail= name + " was not located")
+            return {"deleted": name}
+    raise HTTPException(status_code=404, detail= "No device called " + name)
